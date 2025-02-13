@@ -10,9 +10,10 @@ import UIKit
 class ViewController: UITableViewController {
     var notes = [Note]()
     
-    
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        load()
         
         title = "Notes"
         navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .add, target: self, action: #selector(addNote))
@@ -41,6 +42,7 @@ class ViewController: UITableViewController {
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
+        notes.reverse()
         tableView.reloadData()
     }
     
@@ -48,6 +50,7 @@ class ViewController: UITableViewController {
         let newNote = Note(text: "")
         notes.append(newNote)
         tableView.reloadData()
+        save()
         
         if let vc = storyboard?.instantiateViewController(withIdentifier: "Detail") as? DetailViewController {
             vc.selectedNote = newNote
@@ -67,6 +70,7 @@ class ViewController: UITableViewController {
                 }
                 
                 tableView.reloadData()
+                save()
             }
         }
     }
@@ -74,5 +78,25 @@ class ViewController: UITableViewController {
     deinit {
         // Удаляем наблюдателя при деинициализации
         NotificationCenter.default.removeObserver(self, name: .didUpdateNote, object: nil)
+    }
+    
+    func save() {
+        let jsonEncoder = JSONEncoder()
+        if let savedData = try? jsonEncoder.encode(notes) {
+            let defaults = UserDefaults.standard
+            defaults.set(savedData, forKey: "notes")
+        } else {
+            print("Saving failed")
+        }
+    }
+    
+    func load() {
+        let defaults = UserDefaults.standard
+        if let savedData = defaults.data(forKey: "notes") as Data? {
+            let jsonDecoder = JSONDecoder()
+            if let decodedData = try? jsonDecoder.decode([Note].self, from: savedData) {
+                notes = decodedData
+            }
+        }
     }
 }
