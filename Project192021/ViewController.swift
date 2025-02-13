@@ -20,6 +20,7 @@ class ViewController: UITableViewController {
         
         // Подписываемся на уведомление об обновлении заметки
         NotificationCenter.default.addObserver(self, selector: #selector(noteUpdated(_:)), name: .didUpdateNote, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(deleteNote(_:)), name: .didDeleteNote, object: nil)
     }
     
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
@@ -75,9 +76,18 @@ class ViewController: UITableViewController {
         }
     }
     
+    @objc func deleteNote(_ notification: Notification) {
+        if let noteToDelete = notification.object as? Note {
+            if let index = notes.firstIndex(where: { $0 === noteToDelete }) {
+                notes.remove(at: index)
+            }
+        }
+    }
+    
     deinit {
         // Удаляем наблюдателя при деинициализации
         NotificationCenter.default.removeObserver(self, name: .didUpdateNote, object: nil)
+        NotificationCenter.default.removeObserver(self, name: .didDeleteNote, object: nil)
     }
     
     func save() {

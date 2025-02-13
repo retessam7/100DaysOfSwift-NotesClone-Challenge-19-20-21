@@ -15,6 +15,8 @@ class DetailViewController: UIViewController {
         super.viewDidLoad()
 
         noteText.text = selectedNote?.text
+        
+        navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .trash, target: self, action: #selector(deleteNote))
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -35,9 +37,18 @@ class DetailViewController: UIViewController {
             NotificationCenter.default.post(name: .didUpdateNote, object: note)
         }
     }
+    
+    @objc func deleteNote() {
+        guard let note = selectedNote else { return }
+        
+        NotificationCenter.default.post(name: .didDeleteNote, object: note)
+        
+        navigationController?.popViewController(animated: true)
+    }
 }
 
 extension Notification.Name {
     static let didUpdateNote = Notification.Name("didUpdateNote")
+    static let didDeleteNote = Notification.Name("didDeleteNote")
 }
 
