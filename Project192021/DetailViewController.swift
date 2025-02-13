@@ -16,7 +16,10 @@ class DetailViewController: UIViewController {
 
         noteText.text = selectedNote?.text
         
-        navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .trash, target: self, action: #selector(deleteNote))
+        navigationItem.rightBarButtonItems = [
+            UIBarButtonItem(barButtonSystemItem: .trash, target: self, action: #selector(deleteNote)),
+            UIBarButtonItem(barButtonSystemItem: .action, target: self, action: #selector(shareNote)),
+        ]
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -44,6 +47,14 @@ class DetailViewController: UIViewController {
         NotificationCenter.default.post(name: .didDeleteNote, object: note)
         
         navigationController?.popViewController(animated: true)
+    }
+    
+    @objc func shareNote() {
+        guard let note = selectedNote else { return }
+        
+        let vc = UIActivityViewController(activityItems: [note.text], applicationActivities: [])
+        vc.popoverPresentationController?.barButtonItem = navigationItem.rightBarButtonItem
+        present(vc, animated: true)
     }
 }
 
